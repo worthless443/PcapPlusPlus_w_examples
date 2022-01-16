@@ -354,6 +354,7 @@ jobs:
     - name: Set Zstd
       run: |
         echo "ZSTD_HOME_PARAM=-z C:\tools\zstd" >> $env:GITHUB_ENV
+        dir C:\tools\zstd
       if: matrix.use_zstd == true
 
     - name: Configure PcapPlusPlus
