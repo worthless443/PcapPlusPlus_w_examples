@@ -81,7 +81,7 @@ namespace pcpp
 	class PcapLiveDevice : public IPcapDevice
 	{
 		friend class PcapLiveDeviceList;
-	protected:
+	public:
 		// This is a second descriptor for the same device. It is needed because of a bug
 		// that occurs in libpcap on Linux (on Windows using WinPcap/Npcap it works well):
 		// It's impossible to capture packets sent by the same descriptor
@@ -108,13 +108,21 @@ namespace pcpp
 		RawPacketVector* m_CapturedPackets;
 		bool m_CaptureCallbackMode;
 		LinkLayerType m_LinkType;
+		pcap_if_t* pInterface;
+		bool calculateMTU;
+		bool calculateMacAddress;
+		bool calculateDefaultGateway ;
+		int x;
 
 		// c'tor is not public, there should be only one for every interface (created by PcapLiveDeviceList)
 		PcapLiveDevice(pcap_if_t* pInterface, bool calculateMTU, bool calculateMacAddress, bool calculateDefaultGateway);
 		// copy c'tor is not public
 		PcapLiveDevice( const PcapLiveDevice& other );
+		PcapLiveDevice(int x);
 		PcapLiveDevice& operator=(const PcapLiveDevice& other);
 
+		void init();
+		void init_();
 		void setDeviceMtu();
 		void setDeviceMacAddress();
 		void setDefaultGateway();
@@ -125,7 +133,7 @@ namespace pcpp
 		static void onPacketArrivesBlockingMode(uint8_t* user, const struct pcap_pkthdr* pkthdr, const uint8_t* packet);
 		std::string printThreadId(PcapThread* id);
 		virtual ThreadStart getCaptureThreadStart();
-	public:
+	//public:
 
 		/**
 		 * The type of the live device

@@ -28,6 +28,13 @@ PcapLiveDeviceList::PcapLiveDeviceList()
 	init();
 }
 
+PcapLiveDeviceList::PcapLiveDeviceList(int x) {
+	init();
+}
+
+PcapLiveDeviceList::PcapLiveDeviceList( const PcapLiveDeviceList& other ) {
+	init();
+}
 PcapLiveDeviceList::~PcapLiveDeviceList()
 {
 	for(std::vector<PcapLiveDevice*>::iterator devIter = m_LiveDeviceList.begin(); devIter != m_LiveDeviceList.end(); devIter++)
@@ -36,6 +43,9 @@ PcapLiveDeviceList::~PcapLiveDeviceList()
 	}
 }
 
+PcapLiveDeviceList& PcapLiveDeviceList::operator=(PcapLiveDeviceList& other) {
+	return other;
+}
 void PcapLiveDeviceList::init()
 {
 	pcap_if_t* interfaceList;
@@ -68,6 +78,10 @@ void PcapLiveDeviceList::init()
 
 void PcapLiveDeviceList::setDnsServers()
 {
+#ifndef __linux__
+#error "no linux"
+#endif
+
 #if defined(_WIN32)
 	FIXED_INFO * fixedInfo;
 	ULONG    ulOutBufLen;
@@ -112,6 +126,7 @@ void PcapLiveDeviceList::setDnsServers()
 		PCPP_LOG_DEBUG("Error retrieving DNS server list: nmcli doesn't exist");
 		return;
 	}
+	
 
 	// check nmcli major version (0 or 1)
 	command = "nmcli -v | awk -F' ' '{print $NF}' | awk -F'.' '{print $1}'";
@@ -160,7 +175,6 @@ void PcapLiveDeviceList::setDnsServers()
 		PCPP_LOG_DEBUG("Couldn't set DNS server list: failed to retrieve SCDynamicStore");
 		return;
 	}
-
 	CFDictionaryRef dnsDict = (CFDictionaryRef)SCDynamicStoreCopyValue(dynRef,CFSTR("State:/Network/Global/DNS"));
 
 	if (dnsDict == NULL)
@@ -181,6 +195,9 @@ void PcapLiveDeviceList::setDnsServers()
 	}
 
 	CFIndex count = CFArrayGetCount(serverAddresses);
+
+	std::cout << "nigger ";
+
 	for (CFIndex i = 0; i < count; i++)
 	{
 		CFStringRef serverAddress = (CFStringRef)CFArrayGetValueAtIndex(serverAddresses, i);
@@ -311,7 +328,6 @@ PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(const std::string& ipA
 	PcapLiveDevice* result = PcapLiveDeviceList::getPcapLiveDeviceByIp(ipAddr);
 	return result;
 }
-
 
 PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByName(const std::string& name) const
 {

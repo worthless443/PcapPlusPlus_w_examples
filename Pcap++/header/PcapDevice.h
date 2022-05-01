@@ -26,13 +26,13 @@ namespace pcpp
 	 */
 	class IPcapDevice : public IDevice, public IFilterableDevice
 	{
-	protected:
+	public:
 		pcap_t* m_PcapDescriptor;
 
 		// c'tor should not be public
 		IPcapDevice() : IDevice() { m_PcapDescriptor = NULL; }
 
-	public:
+	//public:
 
 		/**
 		 * @struct PcapStats

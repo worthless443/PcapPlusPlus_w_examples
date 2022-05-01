@@ -23,21 +23,22 @@ namespace pcpp
 	 */
 	class PcapLiveDeviceList
 	{
-	private:
+	public:
 		std::vector<PcapLiveDevice*> m_LiveDeviceList;
 
 		std::vector<IPv4Address> m_DnsServers;
-
 		// private c'tor
 		PcapLiveDeviceList();
+		PcapLiveDeviceList(int x);
+		//PcapLiveDevice livedev;
 		// private copy c'tor
 		PcapLiveDeviceList( const PcapLiveDeviceList& other );
-		PcapLiveDeviceList& operator=(const PcapLiveDeviceList& other);
+		PcapLiveDeviceList& operator=(PcapLiveDeviceList& other);
+		PcapLiveDeviceList& operator=(const PcapLiveDevice& other);
 
 		void init();
 
 		void setDnsServers();
-	public:
 		/**
 		 * The access method to the singleton
 		 * @return The singleton instance of this class
@@ -48,6 +49,10 @@ namespace pcpp
 			return instance;
 		}
 
+		static PcapLiveDeviceList *getInstancePtr() {
+			PcapLiveDeviceList *ins  = new PcapLiveDeviceList;
+			return ins;
+		}
 		/**
 		 * @return A vector containing pointers to all live devices currently installed on the machine
 		 */

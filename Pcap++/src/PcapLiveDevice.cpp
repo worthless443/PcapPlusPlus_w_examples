@@ -66,11 +66,25 @@ static pcap_direction_t directionTypeMap(PcapLiveDevice::PcapDirection direction
 }
 #endif
 
+PcapLiveDevice::PcapLiveDevice(int x) {
+	m_StatsThread = new PcapThread; 	
+	m_CaptureThread = new PcapThread; 	
+	memset(m_StatsThread, 0,sizeof(PcapThread));
+	memset(m_CaptureThread, 0,sizeof(PcapThread));
+	
+}
 
-
-PcapLiveDevice::PcapLiveDevice(pcap_if_t* pInterface, bool calculateMTU, bool calculateMacAddress, bool calculateDefaultGateway) : IPcapDevice(),
-		m_MacAddress(""), m_DefaultGateway(IPv4Address::Zero)
+PcapLiveDevice::PcapLiveDevice(PcapLiveDevice const &other ) {
+	init_();	
+}
+PcapLiveDevice::PcapLiveDevice(pcap_if_t* pInterface, bool calculateMTU, bool calculateMacAddress, bool calculateDefaultGateway) : IPcapDevice(), 
+		m_MacAddress(""), m_DefaultGateway(IPv4Address::Zero), pInterface{pInterface}, calculateDefaultGateway{calculateDefaultGateway}, calculateMTU{calculateMTU},calculateMacAddress{calculateMacAddress}
 {
+	init();
+	
+}
+
+void PcapLiveDevice::init() {
 	m_DeviceMtu = 0;
 	m_LinkType = LINKTYPE_ETHERNET;
 
@@ -131,7 +145,35 @@ PcapLiveDevice::PcapLiveDevice(pcap_if_t* pInterface, bool calculateMTU, bool ca
 	}
 }
 
+void PcapLiveDevice::init_() {
+	//init all other members
+	m_CaptureThreadStarted = false;
+	m_StatsThreadStarted = false;
+	m_IsLoopback = false;
+	m_StopThread = false;
+	m_CaptureThread = new PcapThread();
+	m_StatsThread = new PcapThread();
+	memset(m_CaptureThread, 0, sizeof(PcapThread));
+	memset(m_StatsThread, 0, sizeof(PcapThread));
+	m_cbOnPacketArrives = NULL;
+	m_cbOnStatsUpdate = NULL;
+	m_cbOnPacketArrivesBlockingMode = NULL;
+	m_cbOnPacketArrivesBlockingModeUserCookie = NULL;
+	m_IntervalToUpdateStats = 0;
+	m_cbOnPacketArrivesUserCookie = NULL;
+	m_cbOnStatsUpdateUserCookie = NULL;
+	m_CaptureCallbackMode = true;
+	m_CapturedPackets = NULL;
+	if (calculateMacAddress)
+	{
+		setDeviceMacAddress();
+		if (m_MacAddress.isValid())
+			PCPP_LOG_DEBUG("   MAC addr: " << m_MacAddress);
+	}
+	
+}
 void PcapLiveDevice::onPacketArrives(uint8_t* user, const struct pcap_pkthdr* pkthdr, const uint8_t* packet)
+
 {
 	PcapLiveDevice* pThis = (PcapLiveDevice*)user;
 	if (pThis == NULL)
@@ -1006,6 +1048,7 @@ PcapLiveDevice::~PcapLiveDevice()
 {
 	delete m_CaptureThread;
 	delete m_StatsThread;
+	x = (int)0x0;
 }
 
 } // namespace pcpp
