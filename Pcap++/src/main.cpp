@@ -12,6 +12,8 @@
 #include "cstdio"
 #include "EthLayer.h"
 #include<pcap/pcap.h>
+
+
 class IPcapDevice_d : public pcpp::IPcapDevice {
 
 	public:
@@ -51,9 +53,16 @@ char *parse(std::string str) {
 	}
 	return NULL;
 }
-
+template<class T>
+std::vector<T> convertPtrToVector(T* data) {
+	std::vector<T> v;
+	for(int i=0;*(int*)data!=0;i++) {
+		v.push_back(*data+i);
+		data = data + 1;
+	}
+	return v;
+}
 int main() {
-
 	pcpp::NetworkUtils utils = pcpp::NetworkUtils::getInstance();
 	pcap_if_t *d, *dd; //= NULL;
 	char errbuf[PCAP_ERRBUF_SIZE+1];
@@ -104,10 +113,10 @@ int main() {
 		PcapLiveDevice *new_idevlist = idevlist.getPcapLiveDeviceByIp(*ipaddr);
 		PcapLiveDevice new_idev = *new_idevlist; //problem : c'strutor returns segfault
 	}
-	int port = atoi(pr);
-
-	std::cout << port;
-
+	uint16_t *unbytes = (uint16_t*)(*ipaddr).toBytes();
+	std::vector<uint16_t> vec = convertPtrToVector(unbytes);
+	int port =  atoi(pr);
+	//std::cout << port;
 	//SCDynamicStoreRef storeref = SCDynamicStoreCreate(kCFAllocatorSystemDefaul, CFSTR("test"), NULL,NULL);
 	PcapLiveDevice _live(2);
 	//IPv4Address addripv4 =  utils.getIPv4Address(std::string{"google.com"}, &dev, x,y);
