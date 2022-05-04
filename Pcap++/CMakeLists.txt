@@ -1,7 +1,9 @@
+# build for test envirment  
 project(libpcap++)
 file(GLOB Sources src/*.cpp)
 set (CXX, clang++)
-set(CMAKE_CXX_COMPILER "/usr/lib/llvm/14/bin/clang++")
+#set(CMAKE_CXX_COMPILER "/usr/lib/llvm/14/bin/clang++")
+set(CMAKE_CXX_COMPILER "/usr/bin/g++")
 set(LD_ header ../Common++/header
 	../Packet++/header ../3rdParty/EndianPortable/include ../3rdParty/LightPcapNg/LightPcapNg/include)
 
