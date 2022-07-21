@@ -1,4 +1,11 @@
+include(${CMAKE_CURRENT_SOURCE_DIR}/../Common++/Macros.cmake)
 # build for test envirment  
+project(Common++)
+add_library(Common++ SHARED ${CommonSources})
+message(STATUS "includes from other  ${LD_}")
+target_include_directories(Common++ PUBLIC ${LD_})
+set_target_properties(Common++ PROPERTIES LIBRARY_OUTPUT_DIRECTORY
+	${CMAKE_CURRENT_SOURCE_DIR}/Commonlib)
 project(libpcap++)
 file(GLOB Sources src/*.cpp)
 set (CXX, clang++)
@@ -17,9 +24,9 @@ message(STATUS ${LD_})
 target_include_directories(pcap++ PUBLIC ${LD_})
 
 add_executable(main src/main.cpp)
-target_link_directories(main PUBLIC ./ ../Common++/Lib/Release/
+target_link_directories(main PUBLIC ./  ./Commonlib
 	../Packet++/Lib/ ../Pcap++/PF_RING/userland/lib/ ../Pcap++/PF_RING/userland/lib/)
 target_link_libraries(main PUBLIC pcap++  Packet++  Common++  pfring pcap)
-#target_compile_options(main PUBLIC )
+#target_compile_options(main PUBLIC -D__linux__=1)
 target_include_directories(main PUBLIC ${LD_} )
 
