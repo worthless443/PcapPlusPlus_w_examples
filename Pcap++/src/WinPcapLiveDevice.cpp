@@ -66,7 +66,7 @@ int WinPcapLiveDevice::sendPackets(RawPacket* rawPacketsArr, int arrLength)
 
 	pcap_send_queue* sendQueue = pcap_sendqueue_alloc(dataSize + arrLength*sizeof(pcap_pkthdr));
 	PCPP_LOG_DEBUG("Allocated send queue of size " << (dataSize + arrLength*sizeof(pcap_pkthdr)));
-	struct pcap_pkthdr* packetHeader = new struct pcap_pkthdr[arrLength];
+	struct pcap_pkthdr* packetHeader = new struct pcap_pkthdr[arrLength]; //array of structs, a bad practice?
 	for (int i = 0; i < arrLength; i++)
 	{
 		packetHeader[i].caplen = rawPacketsArr[i].getRawDataLen();

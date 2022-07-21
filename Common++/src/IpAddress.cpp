@@ -10,7 +10,17 @@
 #include <sys/socket.h>
 #endif
 
-
+static std::string asPlainStringNum(std::string string) {
+	char temp[string.size()-((string.size()/2)-1)];
+	std::remove(string.begin(), string.end(), '.');
+	int i=0;
+	return string;
+	for(auto s=string.begin();s<=string.end() - string.size()/2;s++) { 
+		temp[i] = *s;
+		i++;
+	}
+	return std::string(temp);
+}
 namespace pcpp
 {
 
@@ -31,12 +41,36 @@ namespace pcpp
 		return std::string();
 	}
 
+	bool IPv4Address::isValid_() {
+		std::vector<int> Tmatrix;
+		std::string dat = asPlainStringNum(std::string{char_addr});
+		int size = dat.length() - 3; // idk why sub it by 3. 
+		std::cout << size << "\n";
+		for(int i=1;i<=3;i++) {
+			for(int j=1;j<=4;j++) {
+				 Tmatrix.push_back(size==((4-i) + j*3));
+				//Tmatrix.push_back((size==(j*4 - k*j)));
+			}
+
+		}
+		
+		for(int v : Tmatrix) if(v==1) return 1;
+		return 0;
+	}	
+
 	bool IPv4Address::isMulticast() const
 	{
 		return !operator<(MulticastRangeLowerBound) && (operator<(MulticastRangeUpperBound) || operator==(MulticastRangeUpperBound));
 	}
 
+	IPv4Address::IPv4Address(char *addrAsChar) : char_addr{addrAsChar} {
+		int ret = inet_pton(AF_INET, addrAsChar, m_Bytes);
+		if(ret<=0) memset(m_Bytes, 0, sizeof(m_Bytes));
+
+	}
+
 	IPv4Address::IPv4Address(const std::string& addrAsString)
+
 	{
 		if (inet_pton(AF_INET, addrAsString.data(), m_Bytes) <= 0)
 			memset(m_Bytes, 0, sizeof(m_Bytes));

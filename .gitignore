@@ -81,3 +81,7 @@ Examples/Tutorials/**/*.exe
 #venv
 .venv/**
 venv/**
+a.out
+Makefile
+src/Makefile
+Pcap++/src/Makefile

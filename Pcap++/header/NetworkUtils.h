@@ -38,8 +38,10 @@ namespace pcpp
 		 * Default timeout used for several utilities. Currently set to 5 seconds
 		 */
 		static const int DefaultTimeout;
+		NetworkUtils() {}
 
-		/**
+		void ArpRecieved(RawPacket* rawPacket, PcapLiveDevice* device, void* userCookie);
+		/*
 		 * Resolve the MAC address for a given IPv4 address. It's done using the ARP protocol: send an ARP request and interpret the response
 		 * @param[in] ipAddr The IPv4 address to resolve MAC address to
 		 * @param[in] device The interface to send and receive the ARP packets on
@@ -76,13 +78,11 @@ namespace pcpp
 		 * or specified with IPv4Address#Zero the interface's default gateway will be used
 		 * @return The resolved IPv4 address or IPv4Address#Zero if something went wrong (in this case an error will be printed to log)
 		 */
-		IPv4Address getIPv4Address(std::string hostname, PcapLiveDevice* device, double& dnsResponseTimeMS, uint32_t& dnsTTL,
-				int dnsTimeout = -1, IPv4Address dnsServerIP = IPv4Address::Zero, IPv4Address gatewayIP = IPv4Address::Zero) const;
+		IPv4Address getIPv4Address(std::string hostname, PcapLiveDevice* device, double& dnsResponseTimeMS, uint32_t& dnsTTL, int dnsTimeout = -1, IPv4Address dnsServerIP = IPv4Address::Zero, IPv4Address gatewayIP = IPv4Address::Zero) const;
 
 	private:
 
 		// private c'tor
-		NetworkUtils() {}
 	};
 
 } // namespace pcpp

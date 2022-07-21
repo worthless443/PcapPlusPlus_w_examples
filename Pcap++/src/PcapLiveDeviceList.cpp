@@ -119,16 +119,18 @@ void PcapLiveDeviceList::setDnsServers()
 	delete[] buf2;
 #elif defined(__linux__)
 	// verify that nmcli exist
-	std::string command = "command -v nmcli >/dev/null 2>&1 || { echo 'nmcli not installed'; }";
+	//std::string command = "command -v nmcli >/dev/null 2>&1 || { echo 'nmcli not installed'; }";
+	std::string command = "cat /etc/resolv.conf | grep nameserver | awk '{print $2}'";
 	std::string nmcliExists = executeShellCommand(command);
-	if (nmcliExists != "")
+	if (nmcliExists.size()<1)
 	{
-		PCPP_LOG_DEBUG("Error retrieving DNS server list: nmcli doesn't exist");
+		PCPP_LOG_ERROR("Error retrieving DNS server list: nmcli doesn't exist");
 		return;
 	}
 	
 
 	// check nmcli major version (0 or 1)
+/*
 	command = "nmcli -v | awk -F' ' '{print $NF}' | awk -F'.' '{print $1}'";
 	std::string nmcliMajorVer = executeShellCommand(command);
 	nmcliMajorVer.erase(std::remove(nmcliMajorVer.begin(), nmcliMajorVer.end(), '\n'), nmcliMajorVer.end());
@@ -139,11 +141,12 @@ void PcapLiveDeviceList::setDnsServers()
 		command = "nmcli dev list | grep IP4.DNS";
 	else
 		command = "nmcli dev show | grep IP4.DNS";
+*/
 
 	std::string dnsServersInfo = executeShellCommand(command);
 	if (dnsServersInfo == "")
 	{
-		PCPP_LOG_DEBUG("Error retrieving DNS server list: call to nmcli gave no output");
+		PCPP_LOG_ERROR("Error retrieving DNS server list: call to nmcli gave no output");
 		return;
 	}
 
@@ -158,28 +161,29 @@ void PcapLiveDeviceList::setDnsServers()
 		lineStream >> headline;
 		lineStream >> dnsIP;
 		IPv4Address dnsIPAddr(dnsIP);
-		if (!dnsIPAddr.isValid())
-			continue;
-
+		m_DnsServers.push_back(headline);
+/*
 		if (std::find(m_DnsServers.begin(), m_DnsServers.end(), dnsIPAddr) == m_DnsServers.end())
 		{
 			m_DnsServers.push_back(dnsIPAddr);
 			PCPP_LOG_DEBUG("Default DNS server IP #" << i++ << ": " << dnsIPAddr);
 		}
+
+*/
 	}
 #elif defined(__APPLE__)
 
 	SCDynamicStoreRef dynRef = SCDynamicStoreCreate(kCFAllocatorSystemDefault, CFSTR("iked"), NULL, NULL);
 	if (dynRef == NULL)
 	{
-		PCPP_LOG_DEBUG("Couldn't set DNS server list: failed to retrieve SCDynamicStore");
+		PCPP_LOG_ERROR("Couldn't set DNS server list: failed to retrieve SCDynamicStore");
 		return;
 	}
 	CFDictionaryRef dnsDict = (CFDictionaryRef)SCDynamicStoreCopyValue(dynRef,CFSTR("State:/Network/Global/DNS"));
 
 	if (dnsDict == NULL)
 	{
-		PCPP_LOG_DEBUG("Couldn't set DNS server list: failed to get DNS dictionary");
+		PCPP_LOG_ERROR("Couldn't set DNS server list: failed to get DNS dictionary");
 		CFRelease(dynRef);
 		return;
 	}
@@ -188,7 +192,7 @@ void PcapLiveDeviceList::setDnsServers()
 
 	if (serverAddresses == NULL)
 	{
-		PCPP_LOG_DEBUG("Couldn't set DNS server list: server addresses array is null");
+		PCPP_LOG_ERROR("Couldn't set DNS server list: server addresses array is null");
 		CFRelease(dynRef);
 		CFRelease(dnsDict);
 		return;

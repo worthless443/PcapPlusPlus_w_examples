@@ -114,7 +114,7 @@ namespace pcpp
 		bool calculateDefaultGateway ;
 		int x;
 
-		// c'tor is not public, there should be only one for every interface (created by PcapLiveDeviceList)
+		// c'tor is not public, thjre should be only one for every interface (created by PcapLiveDeviceList)
 		PcapLiveDevice(pcap_if_t* pInterface, bool calculateMTU, bool calculateMacAddress, bool calculateDefaultGateway);
 		// copy c'tor is not public
 		PcapLiveDevice( const PcapLiveDevice& other );

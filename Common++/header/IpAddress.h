@@ -50,6 +50,9 @@ namespace pcpp
 		 * @param[in] addrAsString The std::string representation of the address
 		 */
 		IPv4Address(const std::string& addrAsString);
+		IPv4Address(char *addrAsChar);
+
+		int operator=(char *addr) {return 0;}
 
 		/**
 		 * Converts the IPv4 address into a 4B integer
@@ -80,6 +83,7 @@ namespace pcpp
 		 */
 		bool isValid() const { return toInt() != 0; }
 
+		bool isValid_();
 		/**
 		 * Overload of the equal-to operator
 		 * @param[in] rhs The object to compare with
@@ -148,6 +152,7 @@ namespace pcpp
 
 	private:
 		uint8_t m_Bytes[4];
+		char *char_addr;
 	}; // class IPv4Address
 
 

@@ -52,8 +52,10 @@ static void arpPacketReceived(RawPacket* rawPacket, PcapLiveDevice* device, void
 	Packet packet(rawPacket);
 
 	// verify that it's an ARP packet (although it must be because I set an ARP reply filter on the interface)
-	if (!packet.isPacketOfType(ARP))
+	if (!packet.isPacketOfType(ARP)) {
+		PCPP_LOG_ERROR("not arp data");
 		return;
+	}
 
 	// extract the ARP layer from the packet
 	ArpLayer* arpReplyLayer = packet.getLayerOfType<ArpLayer>(true); // lookup in reverse order
@@ -83,6 +85,17 @@ static void arpPacketReceived(RawPacket* rawPacket, PcapLiveDevice* device, void
 }
 
 
+void NetworkUtils::ArpRecieved(RawPacket* rawPacket, PcapLiveDevice* device, void* userCookie) {
+#define SIZE_BUFFER 10
+	if(userCookie==NULL) {
+		int *data = (int*)userCookie;
+		data = (int*)malloc(sizeof(ArpingReceivedData)*SIZE_BUFFER);
+		for(int i=0x80,r=0;i<0x80*SIZE_BUFFER;i*=0x80) data[r] = i;
+	
+	}
+	arpPacketReceived(rawPacket, device, userCookie);
+
+}
 MacAddress NetworkUtils::getMacAddress(IPv4Address ipAddr, PcapLiveDevice* device, double& arpResponseTimeMS,
 		MacAddress sourceMac, IPv4Address sourceIP, int arpTimeout) const
 {
@@ -310,8 +323,7 @@ static void dnsResponseReceived(RawPacket* rawPacket, PcapLiveDevice* device, vo
 }
 
 
-IPv4Address NetworkUtils::getIPv4Address(std::string hostname, PcapLiveDevice* device, double& dnsResponseTimeMS, uint32_t& dnsTTL,
-		int dnsTimeout, IPv4Address dnsServerIP, IPv4Address gatewayIP) const
+IPv4Address NetworkUtils::getIPv4Address(std::string hostname, PcapLiveDevice* device, double& dnsResponseTimeMS, uint32_t& dnsTTL, int dnsTimeout, IPv4Address dnsServerIP, IPv4Address gatewayIP) const
 {
 	IPv4Address result = IPv4Address::Zero;
 
